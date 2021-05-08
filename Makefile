@@ -1,5 +1,5 @@
-run-vm:
-	as -g -o $(o) $(asm) && gcc -Wall -o $(bin) $(o) && ./$(bin)
+build-vm:
+	as -g -o $(o) $(asm) && gcc -Wall -o $(bin) $(o)
 
-run:
-	as -g -o $(o) $(asm) && gcc -o $(bin) $(o) && ./$(bin)
+build:
+	as -g -o $(o) $(asm) && gcc -o $(bin) $(o)
