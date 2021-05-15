@@ -1,7 +1,7 @@
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-run-vm:
-	as -g -o $(o) $(asm) && gcc -Wall -o $(bin) $(o) && $(ROOT_DIR)/$(bin)
+build-vm:
+	as -g -o $(file).o $(file).asm && gcc -Wall -o $(file) $(file).o
 
-run:
-	as -g -o $(o) $(asm) && gcc -o $(bin) $(o) && $(ROOT_DIR)/$(bin)
+build:
+	as -g -o $(file).o $(file).asm && gcc -o $(file) $(file).o
