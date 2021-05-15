@@ -28,9 +28,9 @@
 			bal end
 
 		subtraction:
-			sub result, r3, r2
+			sub r3, r3, r2
 			bal end
-			
+
 		end:
 			mov r7, #1
 			swi 0
