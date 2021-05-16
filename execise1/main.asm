@@ -23,6 +23,7 @@
 		adition:
 			add r3, r1, r2 //result = var1 + var2
 			bal end
+			
 		equal:
 			mov r3, r2 // result = var2
 			bal end
@@ -30,7 +31,6 @@
 		subtraction:
 			sub r3, r3, r2
 			bal end
-
 		end:
 			mov r7, #1
 			swi 0
