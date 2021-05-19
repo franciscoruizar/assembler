@@ -1,30 +1,40 @@
+/* 
+    int a;
+    int b;
+    int c;
+
+    if(a > b){
+        c = a + b
+    } else if (a < b){
+        c = a - b
+    } else {
+        c = 0
+    }
+
+ */
+
 .data
-    A: .int 18
-    B: .int 33
-    C: .int 0
+    A: .int
+    B: .int
+    C: .int
 .text
 .global main
 	main:
-		ldr r0, =A 	     //cargo en r0 la direccion de A
-		ldr r1, [r0] 	 //cargo en r1  el valor de la direccion de memoria de r0
-		
-		ldr r0, =B       //cargo en r0 la direccion de B
-		ldr r2, [r0]     //cargo en r2  el valor de la direccion de memoria de r0
+		mov r0, #15
+        mov r1, #15
+        mov r2, #0
 
-		ldr r0, =C       //cargo en r0 la direccion de C
-		ldr r3, [r0]     //cargo en r3  el valor de la direccion de memoria de r0
-
-        cmp r1, r2       //compara r1 con r2
+        cmp r0, r1       //compara r1 con r2
         beq end          // var1 == var2 hacer el salto a #equal
 		bgt adition      // var1 > var2 hacer el salto a #adition
 		bal subtraction  // var1 < var2 hacer el salto a #subtraction
 
         adition:
-			add r3, r1, r2 //result = var1 + var2
+			add r2, r0, r1 //result = var1 + var2
 			bal end
 
         subtraction:
-			sub r3, r1, r2
+			sub r2, r0, r1
 			bal end
 
 		end:
