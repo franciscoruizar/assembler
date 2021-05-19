@@ -32,8 +32,7 @@
         cmp r1, r2       //compara r1 con r2
 		bgt adition      // var1 > var2 hacer el salto a #adition
 		bal subtraction  // var1 < var2 hacer el salto a #adition
-        beq end          // var1 == var2 hacer el salto a #equal
-
+        end              // var1 == var2 hacer el salto a #equal
 
         adition:
 			add r3, r1, r2 //result = var1 + var2
