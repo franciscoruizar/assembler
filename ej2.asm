@@ -1,18 +1,3 @@
-/*
-    int a;
-    int b;
-    int c;
-
-    if(a > b){
-        c = a + b
-    } else if (a < b){
-        c = a - b
-    } else {
-        c = 0
-    }
-
- */
-
 .data
     A: .int 18
     B: .int 33
