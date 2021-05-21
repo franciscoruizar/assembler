@@ -9,20 +9,20 @@
 	main:
 		mov r0, #15             // a = 15
         mov r1, #15             // b = 15
-        mov r2, #0              // c = 0
-		mov r3, #"+"            // operator = "+"
+        mov r2, #0              // result = 0
+		mov r3, #0x2d           // operator = "+"
         mov r4, #0              // quotient = 0
 
-    	cmp r3, #"+"            // if (operator.equals("+"))
+    	cmp r3, #0x2b           // if (operator.equals("+"))
         beq adition             //  adition();
 
-		cmp r3, #"-"            // if (operator.equals("-"))
+		cmp r3, #0x2d           // if (operator.equals("-"))
         beq minus               //  minus();
 
-        cmp r3, #"*"            // if (operator.equals("*"))
+        cmp r3, #0x2a           // if (operator.equals("*"))
         beq multiply            //  multiply();
 
-        cmp r3, #"/"            // if (operator.equals("/"))
+        cmp r3, #0x2f           // if (operator.equals("/"))
         beq division            //  division();
 
         adition:
@@ -38,11 +38,11 @@
 			bal end             // end();
 
 		division:
-            sub r4, r4, #1      // quotient = quotient + 1;
+            add r4, r4, #1      // quotient = quotient + 1;
             sub r0, r0, r1      // a = a - b;
-            cmp r0, #0          // if (a > 0)
-            bgt division        //  division();
-            add r2, r0, r4      // else c = a + quotient
+            cmp r0, r1          // if (a > b)
+            bge division        //  division();
+            mov r2, r4          // else result = quotient
             bal end             // end();
 		end:
 			mov r7, #1
