@@ -24,13 +24,13 @@
         mov r1, #15
         mov r2, #0
 
-        cmp r0, r1       //compara r1 con r2
-        beq end          // var1 == var2 hacer el salto a #equal
-		bgt adition      // var1 > var2 hacer el salto a #adition
-		bal subtraction  // var1 < var2 hacer el salto a #subtraction
+        cmp r0, r1          @ compara r1 con r2
+		bgt adition         @ var1 > var2 hacer el salto a #adition
+		blt subtraction     @ var1 < var2 hacer el salto a #subtraction
+        bal end             @ var1 == var2 hacer el salto a #equal
 
         adition:
-			add r2, r0, r1 //result = var1 + var2
+			add r2, r0, r1  @ result = var1 + var2
 			bal end
 
         subtraction:
