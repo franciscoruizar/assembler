@@ -3,12 +3,12 @@
 .text
 .global main
 	main:
-        bl loop
+        bl ucase
         bal end 
-        
+
         ucase:
             push {r4}
-
+            bal loop
 
         loop:
             ldrb r4, [r0]
