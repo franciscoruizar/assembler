@@ -4,7 +4,7 @@
 .global main
 	main:
         ldr r1, =string
-        bal usecase
+        bal ucase
         bal end
 
         ucase:
