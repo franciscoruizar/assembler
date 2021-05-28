@@ -3,6 +3,7 @@
 .text
 .global main
 	main:
+        ldr r0, =string
         bl ucase
         bal end 
 
