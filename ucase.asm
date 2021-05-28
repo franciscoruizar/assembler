@@ -18,21 +18,28 @@
         ldr r1, =string @donde se guarda lo ingresado
         swi 0           @ swi, software interrupt
 
-        bal ucase
+        bal loop        
+
         bal end
 
-        ucase:
-            push {r4}
+        print:
+            mov r7, #4         @saldia por pantalla
+            mov r0, #1         @salida cadena
+            mov r2, #35        @tamaño de la cadena
+            ldr r1, =string
+            swi 0              @ swi, software interrupt
 
         loop:
             ldrb r4, [r0]
             cmp r4, #0
-            beq end_loop
+            beq print
             cmp r4, #122
             subls r4, r4, #32
             cmp r4, #65
             addlt r4, r4, #32
             strb r4, [r0], #1
+
+            bal loop
 
         end_loop:
             pop {r4}
