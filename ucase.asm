@@ -1,9 +1,23 @@
 .data
-    string: .ascii "pepe"
+    mensaje: .ascii "Ingresar texto: \n"
+    string:  .ascii " "
 .text
 .global main
 	main:
-        ldr r1, =string
+        // Salida por pantalla
+        mov r7, #4         @saldia por pantalla
+        mov r0, #1         @salida cadena
+        mov r2, #35        @tamaño de la cadena
+        ldr r1, =mensaje
+        swi 0              @ swi, software interrupt
+
+        // Leer por teclado
+        mov r7, #3      @lectura por teclado
+        mov r0, #0      @ingreso de cadena
+        mov r2, #4      @leer cant caracteres
+        ldr r1, =string @donde se guarda lo ingresado
+        swi 0           @ swi, software interrupt
+
         bal ucase
         bal end
 
