@@ -31,8 +31,10 @@
             mov r7, #4         
             mov r0, #1         
             mov r2, #35        
-            ldr r1, =r2
+            ldr r1, =total
             swi 0           
 
 			mov r7, #1
 			swi 0
+
+            
