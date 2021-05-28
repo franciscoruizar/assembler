@@ -30,13 +30,13 @@
             mov r7, #4         @saldia por pantalla
             mov r0, #1         @salida cadena
             mov r2, #35        @tamaño de la cadena
-            ldr r1, =string
+            ldr r1, =r4
             swi 0              @ swi, software interrupt
 
         loop:
             ldrb r4, [r0]
             cmp r4, #0
-            beq print
+            beq print_string
             cmp r4, #122
             subls r4, r4, #32
             cmp r4, #65
