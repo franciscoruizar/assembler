@@ -28,7 +28,6 @@
             bal end
         
 		end:
-            // Salida por pantalla
             mov r7, #4         @saldia por pantalla
             mov r0, #1         @salida cadena
             mov r2, #35        @tamaño de la cadena
