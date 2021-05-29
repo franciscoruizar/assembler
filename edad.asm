@@ -9,7 +9,7 @@
         ldrb r1, [r0]
 
         ldr r0, =test
-        ldrb r2, [r0]
+        ldr r2, [r0]
 
         bal end 
 
