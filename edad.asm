@@ -1,6 +1,6 @@
 .data
     string:  .ascii "pepe"
-    string2:  .byte  "asasa"
+    string2: .word  "asasa"
 
 .text
 .global main
