@@ -25,7 +25,7 @@
             ldrb r4, [r2]
             add r2, r2, r4
 
-            bal end
+            bal loop
         
 		end:
             mov r7, #4         
@@ -37,4 +37,3 @@
 			mov r7, #1
 			swi 0
 
-            
