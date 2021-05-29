@@ -1,6 +1,6 @@
 .data
-    string:  .ascii "pepe"
-    string2: .word  "asasa"
+    string: .ascii "pepe"
+    test:	.word "asa"
 
 .text
 .global main
@@ -8,7 +8,7 @@
         ldr r0, =string
         ldrb r1, [r0]
 
-        ldr r0, =string2
+        ldr r0, =test
         ldrb r2, [r0]
 
         bal end 
