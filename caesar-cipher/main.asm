@@ -1,10 +1,16 @@
+/*
+    NOMENCLATURAS:
+        - Parametros para subrutinas: r0 a r3
+        - Retornos para subrutinas: r0 a r1
+        - Cada subrutina debe tener docs de parametros, retornos y funcion
+ */
+
+
 .data
     mensaje: .ascii ""
     cadena:  .ascii " "
 .text
 
-
-    
     /*
     Imprime por consola el valor de r0  
 
