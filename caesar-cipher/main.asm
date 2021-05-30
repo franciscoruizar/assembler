@@ -7,7 +7,6 @@
         - MAX caracteres de input y output: 200
     ToDo:
         Backlog:
-            - crear subrutina extraer_mensaje
             - crear subrutina extraer_clave -> tambien extrae la palabra clave
             - crear subrutina extraer_opcion
             - crear subrutina codificar
@@ -26,9 +25,10 @@
             
         Doing:
             - crear subrutina print
-            - crear subrutina input
         Do:
-            -
+            - crear subrutina extraer_mensaje
+            - crear subrutina input
+
  */
 
 
@@ -41,7 +41,8 @@
     /*
     Imprime por consola el valor de r3  
 
-    @param r3 
+    @param r2 length del output
+    @param r3 direccion de la cadena a imprimir
 
     @return: void
     */
@@ -49,13 +50,11 @@
         .fnstart
             mov r7, #4               @salida por pantalla
             mov r0, #1               @salida cadena
-            mov r2, #200             @tamaño de la cadena
-            mov r1, r3
-            swi 0               @swi, software interrupt
+            mov r1, r3               @copiamos a r1 la direccion de memoria de r3 y hara el output
+            swi 0                    @swi, software interrupt
             bx lr
         .fnend
 
-    
     /*
     Lee por consola input ingresado por el usuario y retorna el valor en r0
 
@@ -78,15 +77,20 @@
     @param r0: direccion del texto input original (ya la tiene cargada)
     @param r1: direccion del mensaje de salida (ta la tiene cargada)
     
+    @return r0: length del mensaje 
     @return r1: modifica la variable en la funcion agregando el mensaje caracter por caracter
-            
+    
     */
     extraer_mensaje:
         .fnstart
+            mov r3, #0
+
             while:
-                ldrb r2,[r0],#1     @cargo el siguiente byte (siguiente letra) del texto en r2
-                cmp r2, #0x3b       @comparo r2 con el ascii ";"
-                bxeq lr             @si la letra es ";" sale de la funcion a la posicion donde apunta lr (continua el flujo)
+                add r3, #1
+                ldrb r2,[r0],#1      @cargo el siguiente byte (siguiente letra) del texto en r2
+                cmp r2, #0x3b        @comparo r2 con el ascii ";"
+                moveq r0, r3         @si la letra es ";" devuelve la logintud de la cadena en r0
+                bxeq  lr             @si la letra es ";" sale de la funcion a la posicion donde apunta lr (continua el flujo)
 
                 strb r2,[r1],#1     @guardo la siguiente letra a continuacion de la anterior
                 bal while           @vuelvo a ciclar
@@ -97,9 +101,11 @@
     main:
         bl input
 
+        ldr r0, =cadena 
         ldr r1, =mensaje 
         bl extraer_mensaje
 
+        mov r2, r0
         ldr r3, =mensaje
         bl print
 
