@@ -13,7 +13,13 @@ main:
     cmp r3, #90
     blt return_aux
 
-    sub r0, r3, #26
+    sub r9, r3, #26
+
+    mov r7, #4         @saldia por pantalla
+    mov r0, #1         @salida cadena
+    mov r2, #35        @tamaño de la cadena
+    mov r1, r9
+    swi 0              @ swi, software interrupt
 
     bal end
 
