@@ -33,27 +33,27 @@
 
 
 .data
-    mensaje: .ascii "Ingrese los datos: \n"
-    cadena:  .ascii " "
+    output_usuario: .ascii "                                                                                                                                                                                                        "
+    cadena:  .ascii "                                                                                                                                                                                                        "
+    mensaje: .ascii "                                                                                                                                                                                                        "
 .text
 
     /*
-    Imprime por consola el valor de r0  
+    Imprime por consola el valor de r3  
 
-    @param r0
+    @param r3 
+
     @return: void
     */
     print:
         .fnstart
-            mov r7, #4          @salida por pantalla
-            mov r0, #1          @salida cadena
-            mov r2, #200        @tamaño de la cadena
-            ldr r1, =mensaje
+            mov r7, #4               @salida por pantalla
+            mov r0, #1               @salida cadena
+            mov r2, #200             @tamaño de la cadena
+            mov r1, r3
             swi 0               @swi, software interrupt
             bx lr
         .fnend
-
-
 
     
     /*
@@ -78,11 +78,10 @@
     @param r0: direccion del texto input original (ya la tiene cargada)
     @param r1: direccion del mensaje de salida (ta la tiene cargada)
     
-    @return r0: no modifica
     @return r1: modifica la variable en la funcion agregando el mensaje caracter por caracter
             
     */
-    extrae_mensaje:
+    extraer_mensaje:
         .fnstart
             while:
                 ldrb r2,[r0],#1     @cargo el siguiente byte (siguiente letra) del texto en r2
@@ -97,7 +96,12 @@
 .global main
     main:
         bl input
-        mov r4, r0
+
+        ldr r1, =mensaje 
+        bl extraer_mensaje
+
+        ldr r3, =mensaje
+        bl print
 
         bal end
     end:
