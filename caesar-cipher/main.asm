@@ -7,27 +7,26 @@
         - MAX caracteres de input y output: 200
     ToDo:
         Backlog:
-            - crear subrutina extraer_clave -> tambien extrae la palabra clave
-            - crear subrutina extraer_opcion
+            - crear subrutina extraer_clave -> tambien extrae la palabra clave              -> Eze
+            - crear subrutina extraer_opcion                                                -> Eze
             - crear subrutina codificar
             - crear subrutina decodificar
             - crear subrutina decodificar_con_palabra_clave
-            - crear subrutina length
-            - crear subrutina convertir_ascii_entero
-            - crear subrutina convertir_entero_ascii
-            - crear subrutina es_minuscula
-            - crear subrutina es_mayuscula
-            - crear subrutina es_mayuscula
-            - crear subrutina sumar_ascii_minus
-            - crear subrutina sumar_ascii_mayus
+            - crear subrutina length                                                        -> Eze
+            - crear subrutina convertir_ascii_entero                                        -> Sergio
+            - crear subrutina convertir_entero_ascii                                        -> Sergio
+            - crear subrutina es_minuscula                                                  -> Fran
+            - crear subrutina es_mayuscula                                                  -> Fran
+            - crear subrutina sumar_ascii_minus                                             -> Fran
+            - crear subrutina sumar_ascii_mayus                                             -> Fran
             - crear logica de opciones
             - unir subrutinas
             
         Doing:
-            - crear subrutina print
         Do:
             - crear subrutina extraer_mensaje
             - crear subrutina input
+            - crear subrutina print
 
  */
 
