@@ -50,7 +50,7 @@ extraermensaje:
 			cmp r0,#0x3b		@ comparo con ';'
 
 			push {lr}
-			bxeq agregarnulo	@Agrega el caracter nulo si la cadena termina con ';'
+			bleq agregarnulo	@Agrega el caracter nulo si la cadena termina con ';'
 			pop {lr}
 
 			bxeq lr				@ Si el caracter en r0 es igual a ';' salgo de la funcion
@@ -81,11 +81,11 @@ extraerclave:
 		loopclave:
 			ldrb r0,[r1],#1		@cargo en r0 un caracter de la entrada del usuario y preparo para el siguiente caracter
 			cmp r0,#0x3b		@ comparo con ';'
-			
+
 			push {lr}
-			bxeq agregarnulo	@Agrega el caracter nulo si la cadena termina con ';'
+			bleq agregarnulo	@Agrega el caracter nulo si la cadena termina con ';'
 			pop {lr}
-			
+
 			bxeq lr				@ Si el caracter en r0 es igual a ';' salgo de la funcion
 			strb r0,[r3],#1		@ guardo en la direccion de memoria de r3 el caracter de r0
 			bal loopclave		@ vuelvo a iterar
@@ -112,15 +112,13 @@ extraeropcion:
 			cmp r0,#0x3b		@ comparo con ';'
 
 			push {lr}
-			bxeq agregarnulo	@Agrega el caracter nulo si la cadena termina con ';'
+			bleq agregarnulo	@Agrega el caracter nulo si la cadena termina con ';'
 			pop {lr}
 
 			bxeq lr				@ Si el caracter en r0 es igual a ';' salgo de la funcion
 			strb r0,[r3],#1		@ guardo en la direccion de memoria de r3 el caracter de r0
 			bal loopopcion		@ vuelvo a iterar
-			
 	.fnend
-	
 /* ------------------ agregarnulo -------------------- */
 /*
 Agrega el caracter nulo en la direccion de memoria pasada en r3
@@ -133,6 +131,7 @@ agregarnulo:
 		.fnstart
 			mov r0,#0		@caracter null
 			strb r0,[r3]
+			bx lr
 		.fnend
 
 .global main
