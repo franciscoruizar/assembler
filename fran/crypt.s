@@ -1,6 +1,6 @@
 .data
-    character: .ascii ""
-    clave:     .ascii ""
+    mensaje:    .asciz "aaa"
+    clave:     .asciz "2"
 .text
 
     /*
@@ -123,30 +123,74 @@
                 bx lr    
 
         .fnend
+
+    /*
+        @param r0:  direccion de memoria del mensaje limpio
+        @param r1:  clave
+        @return direccion de memoria modificado con el mensaje encriptado 
+    */
+    encriptar:
+        .fnstart
+            push {lr}
+
+            loop_encriptar:
+                mov r3, r0
+                ldrb r0, [r3]
+
+                cmp r0, #0
+                beq end_loop
+
+                bl encriptar_caracter
+
+                strb r0, [r3], #1
+                b loop
+
+            end_loop_encriptar:
+                pop {lr}
+                bx lr  
+        .fnend
+
+    /*
+        @param r0:  direccion de memoria del mensaje encriptado
+        @param r1:  clave
+        @return direccion de memoria modificado con el mensaje limpio 
+    */
+    desencriptar:
+        .fnstart
+            push {lr}
+
+            loop_desencriptar:
+                mov r3, r0
+                ldrb r0, [r3]
+
+                cmp r0, #0
+                beq end_loop
+
+                bl encriptar_caracter
+
+                strb r0, [r3], #1
+                b loop
+
+            end_loop_desencriptar:
+                pop {lr}
+                bx lr  
+        .fnend
 .global main
 main:
 
-    mov r7, #4         @saldia por pantalla
-    mov r0, #1         @salida cadena
-    mov r2, #1         @tamaño de la cadena
-    ldr r1, =character
-    swi 0              @ swi, software interrupt
+    ldr r0, =mensaje
 
-    mov r7, #4         @saldia por pantalla
-    mov r0, #1         @salida cadena
-    mov r2, #1         @tamaño de la cadena
-    ldr r1, =clave
-    swi 0              @ swi, software interrupt
+    ldr r5, =clave
+    ldr r1, [r5]
 
+    bl encriptar
 
-    ldr r0, [character]
-    ldr r1, [clave]
+    bl desencriptar
+    
+    end:
 
-    bl encriptar_caracter
+        mov r7, #1
+        swi 0
 
-    bl desencriptar_caracter
-
-    mov r7, #1
-    swi 0
 
 
