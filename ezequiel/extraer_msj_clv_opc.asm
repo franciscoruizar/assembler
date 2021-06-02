@@ -44,21 +44,28 @@ r1 <- direccion de memoria de la ultima posicion del mensaje
 */
 extraermensaje:
 	.fnstart
-		push {lr}
 
 		loopmensaje:
 			ldrb r0,[r1],#1		@ cargo en r0 un caracter de la entrada del usuario y preparo para el siguiente caracter
 			cmp r0,#0x3b		@ comparo con ';'
 
+			push {lr}
+			bleq agregarnulo
+			pop {lr}
+
 			bxeq lr				@ Si el caracter en r0 es igual a ';' salgo de la funcion
 			strb r0,[r3],#1		@ guardo en la direccion de memoria de r3 el caracter de r0
 			bal loopmensaje		@ vuelvo a iterar
 
-		pop {lr}
+		
 		bx lr
 	.fnend
 
-
+agregarnulo:
+		.fnstart
+			mov r0,#0		@caracter null
+			strb r0,[r3]
+		.fnend
 /*
 
 Parametros
