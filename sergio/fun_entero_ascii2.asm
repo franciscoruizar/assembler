@@ -48,7 +48,7 @@ int_to_ascii:
 
             push {r0}           @intercambio los valores de r1 y r0. R0 tiene el resultado y R1 el resto
             push {r1}
-            pop {r0}            
+            pop {r0}
             pop {r1}
 
             add r1,#0x30        @convierto el resto a ascii
