@@ -18,7 +18,7 @@ for(int i=0;i<letras.length();i++){
 .data
 
 numero_int: .word 12 //permite hasta el numero 99
-numero_ascii: .ascii "  "
+numero_ascii: .ascii "        "
 
 
 .text
@@ -36,7 +36,7 @@ main:
     swi 0
 
 /*
-INT A ASCII  (para numeros de dos posiciones)
+INT A ASCII
 Input:
     R0: el valor del numero entero
     r3: la direccion de la "variable" donde se guarda el numero en ascii

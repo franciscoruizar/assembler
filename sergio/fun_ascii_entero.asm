@@ -1,31 +1,24 @@
 /*
 Pasa de numero en ascii a entero
 */
-/*
-Pseudocodigo:
-letras="12";
-entero=0;
 
-for(int i=0;i<letras.length();i++){
-    entero=entero*10;
-    num=letras[i]-0x30;
-    entero=entero+num;
-    }
-*/
 
 .data
 
-clave_ascii: .ascii "12"
+clave_ascii: .ascii "125\000    " // "\000" es el caracter null 0x00 en ascii hexa
 clave_int: .byte 0
 
 .text
 .global main
 
 main:
-    ldr r0,=clave_ascii
-    mov r2,#2
+    ldr r0,=clave_ascii         @cargo en r0 la direccion de memoria del input
+    mov r2,#8                   @cantidad de caracteres que tiene la variable
 
-    bl ascii_to_int
+    bl ascii_to_int             @llamo a la funcion ascii a int
+    
+    ldr r0,=clave_int           @cargo la direccion de memoria donde se guarda la clave en int
+    strb r1,[r0]                @guardo la clava que esta en r1, en la direccion de memoria
 
     mov r7,#1
     swi 0
@@ -51,13 +44,16 @@ ascii_to_int:
                 cmp r2,#0               @comparo las posiciones que quedan por procesar con 0
                 bxeq lr                 @si no quedan letras por procesar salgo de la funcion
 
+                ldrb r3,[r0],#1         @cargo el siguiente byte (siguiente numero ascii) del texto en r3 (aux)
+                cmp r3,#0x00            @comparo el caracter con el caracter null
+                bxeq lr                 @si es el caracter null, salgo de la funcion
+
                 PUSH {r0,r3}            @guardo en la pila los valores de r0 y r3 porque necesito usar mas registros
                 mov r0,#10              @cargo 10 en r0 porque lo necesito para hacer el mul
                 mov r3,r1               @cargo el valor de r1 en r3 para hacer el mult
                 mul r1,r3,r0            @corro el numero unlugar hacia adelante (10**n) ej: 2--->20 
                 POP {r0,r3}             @retorno los valores de la pila a los registros originales
 
-                ldrb r3,[r0],#1         @cargo el siguiente byte (siguiente numero ascii) del texto en r3 (aux)
                 sub r3,#0x30            @convierto a numero int
                 add r1,r3               @sumo el numero a la salida ej: 20 + 3
 
