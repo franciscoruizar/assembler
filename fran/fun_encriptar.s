@@ -1,5 +1,5 @@
 .data
-    mensaje: .asciz "aa"
+    mensaje: .asciz "aa aa"
 .text
     /*
         @param r0:   caracter
@@ -10,7 +10,12 @@
         .fnstart
             push {lr}
             push {r1}
-            push {r2}            
+            push {r2}
+
+            cmp r0, #0x20
+            moveq r2, r0
+            beq return_caracter_encriptado
+
             add r2, r0, r1                                        @Encripto el caracter en base a la clave (caracter + clave) en r0
 
             cmp r0, #0x61                                         @Compara r0(caracter) con la letra 'a' en hexadecimal

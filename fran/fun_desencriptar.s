@@ -1,5 +1,5 @@
 .data
-    mensaje: .asciiz "aaaaa"
+    mensaje: .asciz "cc cc"
 .text
     /*
         @param r0: caracter encriptado
@@ -8,6 +8,13 @@
     */
     desencriptar_caracter:
         .fnstart
+            push {lr}
+            push {r1}
+            push {r2}
+
+            cmp r0, #0x20
+            moveq r2, r0
+            beq return_caracter_desencriptado
 
             sub r2, r0, r1                       @desencripto el caracter en base a la clave (caracter encriptado + clave) en r0
 
@@ -43,6 +50,9 @@
 
             return_caracter_desencriptado:
                 mov r0, r2
+                pop {r2}
+                pop {r1}
+                pop {lr}
                 bx lr  
 
         .fnend
