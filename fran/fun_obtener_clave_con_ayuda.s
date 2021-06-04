@@ -47,6 +47,7 @@
     obtener_clave_con_ayuda:
         .fnstart
             push {lr}
+            push {r1}
             push {r2}
             push {r3}
             push {r4}
@@ -131,6 +132,7 @@
                 pop {r4}
                 pop {r3}
                 pop {r2}
+                pop {r1}
                 pop {lr}
                 bx lr
         .fnend
