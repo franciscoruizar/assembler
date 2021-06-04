@@ -49,6 +49,7 @@
 
             return_caracter_encriptado:
                 mov r0, r2
+                
                 pop {r2}
                 pop {r1}
                 pop {lr}
@@ -61,18 +62,21 @@
         @param r0: direccion de memoria del mensaje
         @param r1: clave
 
-        @return cadena encriptada
+        @return r0: cadena encriptada
     
     */
     encriptar:
         .fnstart
             push {lr}
+            push {r2}
+            push {r3}
+            
             mov r2, r0                         @auxilio la direccion de memoria en r2 
             encriptar_loop:
                 ldrb r3, [r2]                  @obtengo el mas signficativo y lo guardo en r3
                 
                 cmp r3, #0                     
-                beq end_encriptar_loop         @Si r3 == 0, termina la funcion
+                beq return_encriptar         @Si r3 == 0, termina la funcion
                 
                 push {r2}
 
@@ -84,8 +88,11 @@
 
                 b encriptar_loop
 
-            end_encriptar_loop:
+            return_encriptar:
                 mov r0, r2
+
+                pop {r3}
+                pop {r2}
                 pop {lr}
                 bx lr 
         .fnend

@@ -50,6 +50,7 @@
 
             return_caracter_desencriptado:
                 mov r0, r2
+
                 pop {r2}
                 pop {r1}
                 pop {lr}
@@ -67,6 +68,9 @@
     encriptar:
         .fnstart
             push {lr}
+            push {r2}
+            push {r3}
+
             mov r2, r0                         @auxilio la direccion de memoria en r2 
             desencriptar_loop:
                 ldrb r3, [r2]                  @obtengo el mas signficativo y lo guardo en r3
@@ -86,6 +90,9 @@
 
             end_desencriptar_loop:
                 mov r0, r2
+
+                pop {r3}
+                pop {r2}
                 pop {lr}
                 bx lr 
         .fnend
