@@ -1,9 +1,42 @@
 .data
-    mensaje_encriptado: .asciz "mtqf jxyj rjsxfoj jxyÑ jshwnuyfit"
-    ayuda: .asciz "este"
+    mensaje_encriptado: .asciz "cc cc"
+    palabra_ayuda: .asciz "aa"
     palabra_encriptada_actual: .skip 255
     test: .asciz "jxyj"
 .text
+
+    /*
+        @param r0: direccion de memoria de palabra_ayuda
+
+        @return r0: length
+    */
+    length:
+        .fnstart
+            push {lr}
+            push {r1}
+            push {r2}
+
+            mov r1, #0                                                        @Limpiamos registro - Iteraciones
+            mov r2, #0                                                        @Limpiamos registro - Utilizamos r2 como registro para asignar el bit mas significativo de la palabra
+            length_loop:
+                ldrb r2, [r0,r1]
+
+                cmp r2, #0                                                    @Compara el bit mas significativo con nulo
+                beq end_length_loop                                           @ r2 == null, termino el ciclo
+
+                add r1, r1, #1                                              @Sino incremento e iteramos
+                b length_loop
+
+            end_length_loop:
+                mov r0, r1
+                b return_length
+
+            return_length:
+                pop {r2}
+                pop {r1}
+                pop {lr}
+                bx lr
+        .fnend
 
     /*
         @param r0: direccion de memoria mensaje_encriptado
@@ -24,13 +57,23 @@
             push {r9}
             
             ldr r2, =palabra_encriptada_actual                                  @Asignamos direccion de memoria de palabra_encriptada_actual
-            mov r3, #4                                                          @Limpio registro - length de palabra_ayuda
-            mov r4, #0                                                          @Limpio registro - Iteraciones
-            mov r5, #0                                                          @Limpio registro - Utilizamos r5 como registro para asignar el bit mas significativo de mensaje_encriptado
-            mov r6, #0                                                          @Limpio registro - contador para length de la palabra_encriptada_actual
-            mov r7, #0                                                          @Limpio registro
-            mov r8, #0                                                          @Limpio registro
-            mov r9, #0                                                          @Limpio registro
+            mov r3, #0                                                          @Limpiamos registro - length de palabra_ayuda
+            mov r4, #0                                                          @Limpiamos registro - Iteraciones
+            mov r5, #0                                                          @Limpiamos registro - Utilizamos r5 como registro para asignar el bit mas significativo de mensaje_encriptado
+            mov r6, #0                                                          @Limpiamos registro - contador para length de la palabra_encriptada_actual
+            mov r7, #0                                                          @Limpiamos registro
+            mov r8, #0                                                          @Limpiamos registro
+            mov r9, #0                                                          @Limpiamos registro
+
+            obtener_length_palabra_ayuda:
+                mov r8, r0                                                      @Auxilio en r8 la direccion de memoria de mensaje_encriptado
+                mov r0, r1                                                      @Movemos r1(palabra_ayuda) a r0(ya que es un parametro de length()) 
+
+                bl  length                                                      @Obtenemos length de palabra_ayuda
+
+                mov r3, r0                                                      @Guardamos el retorno(length palabra_ayuda) en r3
+                mov r0, r8                                                      @Asignamos el auxilio a su registro base
+                mov r8, #0                                                      @Limpiamos registro
             
             obtener_clave_con_ayuda_loop:
                 ldrb r5, [r0, r4]                                               @Asignamos en r5 el bit mas significativo de r0(mensaje_encriptado)
@@ -110,12 +153,12 @@
             push {r6}
             push {r7}
 
-            mov r0, #0                                                          @Limpio registro
-            mov r3, #0                                                          @Limpio registro - cantidad_posiciones_anterior
-            mov r4, #0                                                          @Limpio registro - Iteraciones
-            mov r5, #0                                                          @Limpio registro
-            mov r6, #0                                                          @Limpio registro
-            mov r7, #0                                                          @Limpio registro
+            mov r0, #0                                                          @Limpiamos registro
+            mov r3, #0                                                          @Limpiamos registro - cantidad_posiciones_anterior
+            mov r4, #0                                                          @Limpiamos registro - Iteraciones
+            mov r5, #0                                                          @Limpiamos registro
+            mov r6, #0                                                          @Limpiamos registro
+            mov r7, #0                                                          @Limpiamos registro
 
             obtener_cantidad_de_posiciones_loop:
                 ldrb r5, [r1, r4]                                               @Cargo en r5 el bit mas significante de r1(palabra ayuda)
@@ -158,7 +201,7 @@
 .global main
 main:
     ldr r0, =mensaje_encriptado
-    ldr r1, =ayuda
+    ldr r1, =palabra_ayuda
 
     bl obtener_clave_con_ayuda
 

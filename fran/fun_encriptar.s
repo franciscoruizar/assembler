@@ -1,5 +1,6 @@
 .data
     mensaje: .asciz "aa aa"
+    clave:   .asciz "2"
 .text
     /*
         @param r0:   caracter
