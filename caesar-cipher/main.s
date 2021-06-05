@@ -87,7 +87,7 @@
             
             loopmensaje:
                 ldrb r0,[r1],#1		                    @ cargo en r0 un caracter de la entrada del usuario y preparo para el siguiente caracter
-                cmp r0,#0x3b		                    @ comparo con ';'
+                cmp r0,#';'		                        @ comparo con ';'
 
                 bleq agregarnulo	                    @Agrega el caracter nulo si la cadena termina con ';'
                 beq return_extraermensaje				@ Si el caracter en r0 es igual a ';' salgo de la funcion
@@ -122,13 +122,13 @@
 
             loopclave:
                 ldrb r0, [r1],#1		                  @cargo en r0 un caracter de la entrada del usuario y preparo para el siguiente caracter
-                cmp  r0, #0x3b		                  @ comparo con ';'
+                cmp  r0, #';'		                      @ comparo con ';'
 
-                bleq agregarnulo	                  @Agrega el caracter nulo si la cadena termina con ';'
+                bleq agregarnulo	                      @Agrega el caracter nulo si la cadena termina con ';'
                 beq  return_extraerclave				  @ Si el caracter en r0 es igual a ';' salgo de la funcion
                 
-                strb r0,[r3],#1		                  @ guardo en la direccion de memoria de r3 el caracter de r0
-                bal  loopclave		                  @ vuelvo a iterar
+                strb r0,[r3],#1		                      @ guardo en la direccion de memoria de r3 el caracter de r0
+                bal  loopclave		                      @ vuelvo a iterar
 
             return_extraerclave:
                 pop {r0}
@@ -272,7 +272,101 @@
             bx  lr
         .fnend
 
+    /*
+        @param r0:   caracter
+        @param r1:   clave
+        @return r0:  caracter encriptado
+    */
+    encriptar_caracter:
+        .fnstart
+            push {lr}
+            push {r1}
+            push {r2}
+
+            cmp r0, #' '                                         @Comparamos si r0 es ' '
+            moveq r2, r0                                         @Si lo es, no lo encriptamos
+            beq return_caracter_encriptado
+
+            add r2, r0, r1                                        @Encripto el caracter en base a la clave (caracter + clave) en r0
+
+            cmp r0, #'a'                                         @Compara r0(caracter) con la letra 'a' en hexadecimal
+            bge verificar_caracter_si_esta_dentro_del_rango_minusculas
+            b verificar_caracter_si_esta_dentro_del_rango_mayusculas
+
+            verificar_caracter_si_esta_dentro_del_rango_mayusculas:
+                cmp r0, #'A'                                     @Compara r0(caracter) con la letra 'A' en hexadecimal
+                bge verificar_caracter_overflow_mayuscula
+                b return_caracter_encriptado
+
+            verificar_caracter_overflow_mayuscula:
+                cmp r2, #'Z'                                      @Verifica si hay overflow -> r2 > Z
+                bgt convertir_caracter_encriptado_overflow        @Si el caracter encriptado esta overflow, lo convierte
+                ble return_caracter_encriptado                    @Si el caracter encriptado(r2) esta dentro del rango del abecedario en minuscula, lo retorno
+
+            verificar_caracter_si_esta_dentro_del_rango_minusculas:
+                cmp r0, #'z'                                     @Compara r0(caracter) con la letra 'z' en hexadecimal
+                ble verificar_caracter_overflow_minuscula
+                b return_caracter_encriptado
+                
+            verificar_caracter_overflow_minuscula:
+                cmp r2, #'z'                                      @Verifica si hay overflow -> r2 > z
+                bgt convertir_caracter_encriptado_overflow        @Si el caracter encriptado esta overflow, lo convierte
+                ble return_caracter_encriptado                    @Si el caracter encriptado(r2) esta dentro del rango del abecedario en minuscula, lo retorno
+
+            convertir_caracter_encriptado_overflow:
+                sub r2, r2, #26                                   @r2 = r2 - 26
+                b return_caracter_encriptado                      
+
+            return_caracter_encriptado:
+                mov r0, r2
+                
+                pop {r2}
+                pop {r1}
+                pop {lr}
+                bx lr             
+
+        .fnend
+
+
+    /*
+        @param r0: direccion de memoria del mensaje
+        @param r1: clave
+
+        @return r0: cadena encriptada
     
+    */
+    encriptar:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+            
+            mov r2, r0                         @auxilio la direccion de memoria en r2 
+            encriptar_loop:
+                ldrb r3, [r2]                  @obtengo el mas signficativo y lo guardo en r3
+                
+                cmp r3, #00                    
+                beq return_encriptar         @Si r3 == 0, termina la funcion
+                
+                push {r2}
+
+                mov r0, r3                     @Guardo en r0 el caracter 
+                bl encriptar_caracter           
+
+                pop {r2}
+                strb r0, [r2], #1              @cambio en la posicion del bit mas significativo el caracter comun al encriptado 
+
+                b encriptar_loop
+
+            return_encriptar:
+                mov r0, r2
+
+                pop {r3}
+                pop {r2}
+                pop {lr}
+                bx lr 
+        .fnend
+
 
 
 .global main
@@ -282,6 +376,13 @@
 
         @Proceso y parseo de datos ingresados
         bl parsear_input_usuario
+
+        @Encriptacion
+        ldr r0, =mensaje
+        ldr r1, =clave_int
+        ldr r1, [r1]
+
+        bl encriptar
 
         bal end
     end:

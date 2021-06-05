@@ -65,7 +65,7 @@
         @return cadena desencriptada
     
     */
-    encriptar:
+    desencriptar:
         .fnstart
             push {lr}
             push {r2}
@@ -103,7 +103,7 @@ main:
     ldr r0, =mensaje
     mov r1, #2
 
-    bl encriptar
+    bl desencriptar
 
     bal end
     
