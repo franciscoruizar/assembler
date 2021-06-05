@@ -128,3 +128,25 @@ decodificar:
     return mensaje_codificado
 
 
+    ToDo:
+        Backlog:
+            - crear subrutina extraer_clave -> tambien extrae la palabra clave              -> Eze
+            - crear subrutina extraer_opcion                                                -> Eze
+            - crear subrutina codificar
+            - crear subrutina decodificar
+            - crear subrutina decodificar_con_palabra_clave
+            - crear subrutina length                                                        -> Eze
+            - crear subrutina convertir_ascii_entero                                        -> Sergio
+            - crear subrutina convertir_entero_ascii                                        -> Sergio
+            - crear subrutina es_minuscula                                                  -> Fran
+            - crear subrutina es_mayuscula                                                  -> Fran
+            - crear subrutina sumar_ascii_minus                                             -> Fran
+            - crear subrutina sumar_ascii_mayus                                             -> Fran
+            - crear logica de opciones
+            - unir subrutinas
+            
+        Doing:
+        Do:
+            - crear subrutina extraer_mensaje
+            - crear subrutina input
+            - crear subrutina print

@@ -141,8 +141,7 @@ agregarnulo:
 
 main:
 
-	@ Entrada de datos
-
+	@Entrada de datos
 	bl input				@ Usuario introduce mensaje
 
 	/*Cargo parametros a la funcion extraermensaje*/

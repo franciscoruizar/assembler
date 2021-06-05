@@ -75,7 +75,7 @@
             desencriptar_loop:
                 ldrb r3, [r2]                  @obtengo el mas signficativo y lo guardo en r3
                 
-                cmp r3, #0                     
+                cmp r3, #00                     
                 beq end_desencriptar_loop         @Si r3 == 0, termina la funcion
                 
                 push {r2}

@@ -21,7 +21,7 @@
             length_loop:
                 ldrb r2, [r0,r1]
 
-                cmp r2, #0                                                    @Compara el bit mas significativo con nulo
+                cmp r2, #00                                                   @Compara el bit mas significativo con nulo
                 beq end_length_loop                                           @ r2 == null, termino el ciclo
 
                 add r1, r1, #1                                              @Sino incremento e iteramos
@@ -166,7 +166,7 @@
                 ldrb r5, [r1, r4]                                               @Cargo en r5 el bit mas significante de r1(palabra ayuda)
                 ldrb r6, [r2, r4]                                               @Cargo en r6 el bit mas significante de r2(palabra encriptada)
 
-                cmp r5, #0
+                cmp r5, #00
                 beq return_true_obtener_cantidad_de_posiciones_loop             @Si llegamos al final de la cadena de las palabra, terminamos el loop y retornamos falso
 
                 sub r7, r6, r5                                                  @cantidad_posiciones = caracter_palabra_encriptada - caracter_palabra_ayuda
