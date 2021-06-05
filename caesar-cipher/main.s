@@ -12,6 +12,7 @@
     cadena_input_usuario: .ascii "                                                                                                                                                                                                        "
     mensaje: .ascii "                                                                                                                                                                                                        "
     clave: .ascii "    "
+    clave_int: .word 0
     opcion: .ascii "    "
 .text
 
@@ -188,6 +189,50 @@
 			bx lr
 		.fnend
 
+    /*
+        ASCII A INT
+        Input:
+            R0: direccion de memoria donde esta el ascii
+            R1: direccion de memoria donde se guardara el entero
+        Uso:
+            r2: registro se usa como auxiliar
+            r3: registro se usa como auxiliar
+    */
+    ascii_to_int:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+            
+            
+            mov r2, #0                                    @limpio el registro r2 (numero-output)
+            mov r3, #0                                    @limpio el registro r3 (auxiliar)
+
+            ascii_to_int_loop:
+                ldrb r3,[r0], #1                          @cargo el siguiente byte (siguiente numero ascii) del texto en r3 (aux)
+                cmp  r3, #0x00                            @comparo el caracter con el caracter null
+                beq  return_ascii_to_int                  @si es el caracter null, salgo de la funcion
+
+                push {r0,r3}                              @guardo en la pila los valores de r0 y r3 porque necesito usar mas registros
+                mov r0, #10                               @cargo 10 en r0 porque lo necesito para hacer el mul
+                mov r3, r2                                @cargo el valor de r2 en r3 para hacer el mult
+                mul r2, r3, r0                            @corro el numero unlugar hacia adelante (10**n) ej: 2--->20 
+                pop {r0,r3}                               @retorno los valores de la pila a los registros originales
+
+                sub r3, #0x30                            @convierto a numero int
+                add r2, r3                               @sumo el numero a la salida ej: 20 + 3
+
+                bal ascii_to_int_loop                   @vuelvo a ciclar
+
+            return_ascii_to_int:
+                str r2, [r1]            
+
+                pop {r2}
+                pop {r3}
+                pop {lr}
+                bx lr
+        .fnend
+
     /* 
         Parsea y extrar las partes del input del usaurio
 
@@ -216,11 +261,18 @@
             ldr r3,=opcion
             bl extraeropcion
 
+            /*Pasamos la clave de ascii a entero y la alojamos en clave_int*/
+            ldr r0, =clave
+            ldr r1, =clave_int
+            bl ascii_to_int
+
             pop {r3}
             pop {r1}
             pop {lr}
             bx  lr
         .fnend
+
+    
 
 
 .global main
@@ -230,7 +282,6 @@
 
         @Proceso y parseo de datos ingresados
         bl parsear_input_usuario
-
 
         bal end
     end:
