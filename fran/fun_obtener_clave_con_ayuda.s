@@ -1,6 +1,6 @@
 .data
-    mensaje_encriptado: .asciz "cc cc"
-    palabra_ayuda: .asciz "aa"
+    mensaje_encriptado: .asciz "krd hvwh hv xq phqvdmh vxshu frpsolfdgR"
+    palabra_ayuda: .asciz "pepe"
     palabra_encriptada_actual: .skip 255
     test: .asciz "jxyj"
 .text
@@ -47,7 +47,6 @@
     obtener_clave_con_ayuda:
         .fnstart
             push {lr}
-            push {r1}
             push {r2}
             push {r3}
             push {r4}
@@ -79,7 +78,7 @@
             obtener_clave_con_ayuda_loop:
                 ldrb r5, [r0, r4]                                               @Asignamos en r5 el bit mas significativo de r0(mensaje_encriptado)
                 
-                cmp r5, #' '                                                   @Comparamos r5 con ' '
+                cmp r5, #0x20                                                   @Comparamos r5 con ' '
                 beq verificar_length_palabra_actual_con_clave                   @Si es ' ', verificaciones si palabra_encriptada_actual.length == palabra_ayuda.length                                 
                 bne concatenar_obtener_clave_con_ayuda                          @Sino, concatenamos
 
@@ -132,7 +131,6 @@
                 pop {r4}
                 pop {r3}
                 pop {r2}
-                pop {r1}
                 pop {lr}
                 bx lr
         .fnend
@@ -149,6 +147,7 @@
     obtener_cantidad_de_posiciones:
         .fnstart
             push {lr}
+            push {r2}
             push {r3}
             push {r4}
             push {r5}
@@ -197,6 +196,7 @@
                 pop {r5}
                 pop {r4}
                 pop {r3}
+                pop {r2}
                 pop {lr}
                 bx lr
         .fnend

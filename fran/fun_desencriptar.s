@@ -1,5 +1,5 @@
 .data
-    mensaje: .asciz "cc cc"
+    mensaje: .asciz "jqnc guvg gu wp ogpuclg"
 .text
     /*
         @param r0: caracter encriptado

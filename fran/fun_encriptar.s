@@ -1,5 +1,5 @@
 .data
-    mensaje: .asciz "aa aa"
+    mensaje: .asciz "hola este es un mensaje"
     clave:   .asciz "2"
 .text
     /*

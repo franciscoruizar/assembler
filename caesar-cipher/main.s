@@ -1,21 +1,12 @@
-/*
-    NOMENCLATURAS:
-        - Parametros para subrutinas: r0 a r3
-        - Retornos para subrutinas: r0 a r1
-        - Cada subrutina debe tener docs de parametros, retornos y funcion
-        - Dentro de global main utilizar los registros r4, r5, r6, r8, r9, r10, r11, r12
-        - MAX caracteres de input y output: 200
- */
-
-
 .data
-    cadena_input_usuario: .ascii "                                                                                                                                                                                                        "
-    mensaje: .ascii "                                                                                                                                                                                                        "
-    clave: .ascii "    "
+    cadena_input_usuario: .ascii "                                                                                                                                                                                                                                                               "
+    mensaje: .ascii "                                                                                                                                                                                                                                                               "
+    clave: .ascii "                                                                                                                                                                                                                                                               "
     clave_int: .word 0
-    opcion: .ascii "    "
+    opcion: .ascii "                                                                                                                                                                                                                                                               "
     palabra_encriptada_actual: .skip 255
     mensaje_error: .asciz "No se pudo obtener la clave"
+    salto_linea: .asciz "\n"
 .text
 
     /*
@@ -32,12 +23,22 @@
             push {r7}                @Auxilio registro de uso
             push {r0}                @Auxilio registro de uso
             push {r1}                @Auxilio registro de uso
+
+            mov r0, r3
+            bl length
+            mov r2, r0
             
             mov r7, #4               @salida por pantalla
             mov r0, #1               @salida cadena
             mov r1, r3               @copiamos a r1 la direccion de memoria de r3 y hara el output
             swi 0                    @swi, software interrupt
             
+            mov r2, #1
+            mov r7, #4               
+            mov r0, #1
+            ldr r1, =salto_linea               
+            swi 0                    
+
             pop {r1}                 @Auxilio registro de uso
             pop {r0}                 @Auxilio registro de uso
             pop {r7}                 @Auxilio registro de uso
@@ -521,7 +522,7 @@
             ldr r2, =palabra_encriptada_actual                                  @Asignamos direccion de memoria de palabra_encriptada_actual
             mov r3, #0                                                          @Limpiamos registro - length de palabra_ayuda
             mov r4, #0                                                          @Limpiamos registro - Iteraciones
-            mov r5, #0                                                          @Limpiamos registro - Utilizamos r5 como registro para asignar el bit mas significativo de mensaje_encriptado
+            mov r5, #1                                                          @Limpiamos registro - Utilizamos r5 como registro para asignar el bit mas significativo de mensaje_encriptado
             mov r6, #0                                                          @Limpiamos registro - contador para length de la palabra_encriptada_actual
             mov r7, #0                                                          @Limpiamos registro
             mov r8, #0                                                          @Limpiamos registro
