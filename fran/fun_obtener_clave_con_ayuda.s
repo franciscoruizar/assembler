@@ -79,7 +79,7 @@
             obtener_clave_con_ayuda_loop:
                 ldrb r5, [r0, r4]                                               @Asignamos en r5 el bit mas significativo de r0(mensaje_encriptado)
                 
-                cmp r5, #0x20                                                   @Comparamos r5 con ' '
+                cmp r5, #' '                                                   @Comparamos r5 con ' '
                 beq verificar_length_palabra_actual_con_clave                   @Si es ' ', verificaciones si palabra_encriptada_actual.length == palabra_ayuda.length                                 
                 bne concatenar_obtener_clave_con_ayuda                          @Sino, concatenamos
 
