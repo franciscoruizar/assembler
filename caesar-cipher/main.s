@@ -464,38 +464,50 @@
                 bx lr 
         .fnend
 
-
-
 .global main
     main:
         /*                Entrada de datos                     */
         @Entrada de datos
         bl input_usuario
 
-        @Proceso y parseo de datos ingresados
+        /*        Proceso y parseo de datos ingresados         */
         bl parsear_input_usuario
 
-        /*                Encriptacion                     */
+        /*          Validacion de las opciones                */
+
+        ldr r0, =opcion
+        ldrb r0, [r0]
+
+        cmp r0, #'c'
+        beq encriptacion
+
+        cmp r0, #'d'
+        beq desencriptacion
+
+        @cmp r0, #'b'
+        @beq desencriptacion_con_palabra_ayuda 
+
+    encriptacion:
         ldr r0, =mensaje
         ldr r1, =clave_int
         ldr r1, [r1]
 
         bl encriptar
 
-        @Print de la encriptacion
-        mov r2, #10
-        ldr r3, =mensaje
-        bl print
+        bal print_mensaje
 
-        /*                Desencriptacion                     */
-
+    desencriptacion:
         ldr r0, =mensaje
         ldr r1, =clave_int
         ldr r1, [r1]
 
         bl desencriptar
 
-        @Print de la Desencriptacion
+        bal print_mensaje
+
+    desencriptacion_con_palabra_ayuda:
+
+    print_mensaje:
         mov r2, #10
         ldr r3, =mensaje
         bl print
