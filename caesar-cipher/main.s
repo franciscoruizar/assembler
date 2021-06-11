@@ -522,7 +522,7 @@
             ldr r2, =palabra_encriptada_actual                                  @Asignamos direccion de memoria de palabra_encriptada_actual
             mov r3, #0                                                          @Limpiamos registro - length de palabra_ayuda
             mov r4, #0                                                          @Limpiamos registro - Iteraciones
-            mov r5, #1                                                          @Limpiamos registro - Utilizamos r5 como registro para asignar el bit mas significativo de mensaje_encriptado
+            mov r5, #0                                                          @Limpiamos registro - Utilizamos r5 como registro para asignar el bit mas significativo de mensaje_encriptado
             mov r6, #0                                                          @Limpiamos registro - contador para length de la palabra_encriptada_actual
             mov r7, #0                                                          @Limpiamos registro
             mov r8, #0                                                          @Limpiamos registro
