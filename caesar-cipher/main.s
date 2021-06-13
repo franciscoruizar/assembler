@@ -4,8 +4,14 @@
     clave: .ascii "                                                                                                                                                                                                                                                               "
     clave_int: .word 0
     opcion: .ascii "                                                                                                                                                                                                                                                               "
+    caracteres_procesados: .skip 255
     palabra_encriptada_actual: .skip 255
     mensaje_error: .asciz "No se pudo obtener la clave"
+    mensaje_usuario_clave: .asciz "La clave de desplazamiento es: "
+    mensaje_usuario_caracteres_procesados: .asciz "La cantidad de caracteres procesados fueron: "
+    mensaje_clave: .skip 255
+    mensaje_usuario_input: .asciz "Ingrese la entrada a encriptar en formato {mensaje a enciptar/desencriptar};{clave ó palabra ayuda};{opcion c(encriptar) - d(desencriptar) - b(descriptar con palabra ayuda)}: "
+    mensaje_usuario_output: .asciz "El mensaje devuelto es: "
     salto_linea: .asciz "\n"
 .text
 
@@ -236,6 +242,69 @@
                 bx lr
         .fnend
 
+    /*
+    INT A ASCII
+    Input:
+        R0: el valor del numero entero
+    Uso:
+        r1: auxiliar para el resto de la division
+        r2: euxiliar para separar las decenas
+        r3: el registro donde se van cargando los caracteres
+    Outputs:
+        r3: salida registro con los caracteres guardados (3 caracteres+null)
+    */
+
+
+    int_to_ascii:
+        .fnstart
+            mov r2,#10          @cargo en R2 el numero 10 para separa unidades/decenas/centenas
+            mov r3,#0           @limpio el registro (null/null/null/null)
+
+            int_to_ascii_loop:
+                PUSH {lr}
+                bl division         @llamo a la funcion division, devuelve el resto en R0 y el resultado en R1
+                POP {lr}
+
+                push {r0}           @intercambio los valores de r1 y r0. R0 tiene el resultado y R1 el resto
+                push {r1}
+                pop {r0}
+                pop {r1}
+
+                add r1,#0x30        @convierto el resto a ascii
+                add r3,r1           @cargo el resto en el registro (null/null/null/"resto")32 bits
+                ror r3,r3,#24       @corro 1 byte a la izquierda para hacer lugar al siguiente caracter (null/null/"resto"/null)32 bits
+                
+                cmp r0,#10          @comparo el resultado con 10
+                addlt r0,#0x30      @si es menor a 10, convierto el resto a ascii
+                addlt r3,r0         @si es menor a 10 cargo el resto en el registro y salgo ("null"-"null"-"resto"-"resto2")32 bits
+                bxlt lr             @si es menor a 10 salgo
+
+                b int_to_ascii_loop           @vuelvo a ciclar
+        
+
+        .fnend
+
+        /*
+            input:
+                r0: numerador
+                r2: denominador
+            output:
+                r0: resto
+                r1: resultado
+        */
+        division:
+            .fnstart
+
+                mov r1,#0               @limpio el registro r1 donde guardo el resultado
+                division_loop:
+                    cmp  r0,r2	        @comparo divisor con dividendo
+                    bxlt lr		        @si r0 < r1 entonces sale del ciclo
+                    add r1,r1,#1	    @le sumo uno al contador de resultado por cada ciclo
+                    sub r0,r0,r2	    @hago la resta r0-r1 y lo pongo en r0
+                    b division_loop     @entra denuevo a la etiqueta cicla
+
+            .fnend
+
     /* 
         Parsea y extrar las partes del input del usaurio
 
@@ -336,6 +405,7 @@
         @param r1: clave
 
         @return r0: cadena encriptada
+        @return r1: cadena encriptada
     
     */
     encriptar:
@@ -349,7 +419,7 @@
                 ldrb r3, [r2]                  @obtengo el mas signficativo y lo guardo en r3
                 
                 cmp r3, #00                    
-                beq return_encriptar         @Si r3 == 0, termina la funcion
+                beq return_encriptar          @Si r3 == 0, termina la funcion
                 
                 push {r2}
 
@@ -468,7 +538,7 @@
         .fnend
 
     /*
-        @param r0: direccion de memoria de palabra_ayuda
+        @param r0: direccion de memoria de palabra
 
         @return r0: length
     */
@@ -497,6 +567,41 @@
                 pop {r2}
                 pop {r1}
                 pop {lr}
+                bx lr
+        .fnend
+
+
+    /* 
+    
+        @param r0: direccion de memoria del string a limpiar 
+    */
+
+    limpiar_texto:
+        .fnstart
+            push {lr}
+            push {r1}
+            push {r2}
+            push {r3}
+
+            mov r2, #0          @Iteraciones
+
+            limpiar_texto_loop:
+                ldrb r3, [r0, r2]
+
+                cmp r3, #00                     @Comparamos si r3 == ""
+                beq return_limpiar_texto        @Si lo es, termina la cadena
+
+                mov r3, #0                      @Limpiamos el caracter obtenido r3 = ""
+                strb r3, [r0, r2]               @r0[r2] = r3 -> r0[r2] = ""
+                add r2, r2, #1                  @Iteramos...
+                b limpiar_texto_loop
+
+            return_limpiar_texto:
+                pop {r3}
+                pop {r2}
+                pop {r1}
+                pop {lr}
+
                 bx lr
         .fnend
 
@@ -543,7 +648,13 @@
                 
                 cmp r5, #0x20                                                   @Comparamos r5 con ' '
                 beq verificar_length_palabra_actual_con_clave                   @Si es ' ', verificaciones si palabra_encriptada_actual.length == palabra_ayuda.length                                 
+ 
+ @AGREGADO
+                cmp r5, #0                                                      @Comparamos r5 con null
+                beq verificar_length_palabra_actual_con_clave                   @Si es null, verificaciones si palabra_encriptada_actual.length == palabra_ayuda.length                                 
+
                 bne concatenar_obtener_clave_con_ayuda                          @Sino, concatenamos
+
 
             verificar_length_palabra_actual_con_clave:
                 cmp r3, r6                                                      @palabra_encriptada_actual.length y palabra_ayuda.length
@@ -569,8 +680,13 @@
                 beq   return_obtener_clave_con_ayuda 
 
             reiniciar_palabra_encriptada_actual:
-                mov r5, #0                                                      @Asigno nulo a r5
-                str r5, [r2]                                                    @palabra_encriptada_actual = ""
+                push {r0}
+                mov  r0, r2
+
+                bl limpiar_texto
+
+                pop {r0}
+
                 add r4, r4, #1                                                  @Sumamos a las iteraciones
                 mov r6, #0                                                      @Limpiamos el contado con el length de la palabra_encriptada_actual
                 b obtener_clave_con_ayuda_loop                                  @Volvemos a iterar
@@ -629,9 +745,14 @@
                 ldrb r6, [r2, r4]                                               @Cargo en r6 el bit mas significante de r2(palabra encriptada)
 
                 cmp r5, #00
-                beq return_true_obtener_cantidad_de_posiciones_loop             @Si llegamos al final de la cadena de las palabra, terminamos el loop y retornamos falso
+                beq return_true_obtener_cantidad_de_posiciones_loop             @Si llegamos al final de la cadena de las palabra, terminamos el loop y retornamos falso 
 
-                sub r7, r6, r5                                                  @cantidad_posiciones = caracter_palabra_encriptada - caracter_palabra_ayuda
+@COMENTARIO AGREGADO
+                sub r7, r6, r5                                                  @cantidad_posiciones = caracter_palabra_encriptada - caracter_palabra_ayuda  { (B-X) = (66-88)=-22 (F-B) 4}      }
+
+@AGREGADO
+                cmp r7,#0
+                addlt r7,r7,#26                                                 @si es negativo sumo 26
 
                 cmp   r4, #0                                                    @Comparamos si es la primera iteracion
                 moveq r3, r7                                                    @si es la primera iteracion, cantidad_posiciones_anterior = cantidad_posiciones
@@ -663,9 +784,247 @@
                 bx lr
         .fnend
 
+    print_mensaje_usuario_input:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =mensaje_usuario_input
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_mensaje_error:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =mensaje_error
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_mensaje_usuario_output:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =mensaje_usuario_output
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_mensaje:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =mensaje
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_mensaje_clave:
+        .fnstart
+            push {lr}
+            push {r0}
+            push {r1}
+            push {r2}
+            push {r3}
+        
+            ldr r0, =clave_int
+            ldr r0, [r0]
+
+            bl int_to_ascii
+
+            mov r0, r3
+            ldr r3, =mensaje_clave
+            str r0, [r3]
+
+            mov r2, #10
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {r1}
+            pop {r0}
+            pop {lr}
+
+            bx lr
+        .fnend
+
+    print_mensaje_usuario_clave:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =mensaje_usuario_clave
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_caracteres_procesados:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =caracteres_procesados
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_mensaje_usuario_caracteres_procesados:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =mensaje_usuario_caracteres_procesados
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_salto_linea:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #2
+            ldr r3, =salto_linea
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
+    print_output:
+        .fnstart
+            push {lr}
+
+            bl print_salto_linea
+            bl print_mensaje_usuario_output
+            bl print_mensaje
+            bl print_salto_linea
+            bl print_mensaje_usuario_clave
+            bl print_mensaje_clave
+            bl print_salto_linea
+            bl print_mensaje_usuario_caracteres_procesados
+            bl print_caracteres_procesados
+
+            pop {lr}
+            bx lr
+        .fnend
+
+    encriptacion:
+        .fnstart
+            push {lr}
+
+            ldr r0, =mensaje
+            ldr r1, =clave_int
+            ldr r1, [r1]
+
+            bl encriptar
+
+            bl print_output      
+
+            pop {lr}
+            bx lr
+        .fnend
+
+    desencriptacion:
+        .fnstart
+            push {lr}
+
+            ldr r0, =mensaje
+            ldr r1, =clave_int
+            ldr r1, [r1]
+
+            bl desencriptar
+            
+            bl print_output
+
+            pop {lr}
+            bx lr
+        .fnend
+
+    desencriptacion_con_palabra_ayuda:
+        .fnstart
+            push {lr}
+
+            ldr r0, =mensaje
+            ldr r1, =clave
+
+            bl obtener_clave_con_ayuda
+
+            cmp r0, #0
+            bleq print_mensaje_error
+            popeq {lr}
+            bxeq lr
+
+            mov r1, r0
+            mov r2, r0
+            ldr r0, =mensaje
+
+            bl desencriptar
+            
+            ldr r3, =clave_int
+            str r2, [r3]
+            
+            bl print_output
+
+            pop {lr}
+            bx lr
+        .fnend
+
 .global main
     main:
         /*                Entrada de datos                     */
+        bl print_mensaje_usuario_input
+
         @Entrada de datos
         bl input_usuario
 
@@ -678,62 +1037,16 @@
         ldrb r0, [r0]
 
         cmp r0, #'c'
-        beq encriptacion
+        bleq encriptacion
 
         cmp r0, #'d'
-        beq desencriptacion
+        bleq desencriptacion
 
         cmp r0, #'b'
-        beq desencriptacion_con_palabra_ayuda 
+        bleq desencriptacion_con_palabra_ayuda 
 
         bal end
-
-    encriptacion:
-        ldr r0, =mensaje
-        ldr r1, =clave_int
-        ldr r1, [r1]
-
-        bl encriptar
-
-        bal print_mensaje
-
-    desencriptacion:
-        ldr r0, =mensaje
-        ldr r1, =clave_int
-        ldr r1, [r1]
-
-        bl desencriptar
-
-        bal print_mensaje
-
-    desencriptacion_con_palabra_ayuda:
-        ldr r0, =mensaje
-        ldr r1, =clave
-
-        bl obtener_clave_con_ayuda
-
-        cmp r0, #0
-        beq print_error
-
-        mov r1, r0
-        ldr r0, =mensaje
-
-        bl desencriptar
-        bal print_mensaje
-
-    print_error:
-        mov r2, #10
-        ldr r3, =mensaje_error
-        bl print
-
-        bal end
-
-    print_mensaje:
-        mov r2, #10
-        ldr r3, =mensaje
-        bl print
-
-        bal end
+        
     end:
         mov r7, #1
         swi 0

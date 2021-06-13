@@ -468,7 +468,7 @@
         .fnend
 
     /*
-        @param r0: direccion de memoria de palabra_ayuda
+        @param r0: direccion de memoria de palabra
 
         @return r0: length
     */
@@ -497,6 +497,41 @@
                 pop {r2}
                 pop {r1}
                 pop {lr}
+                bx lr
+        .fnend
+
+
+    /* 
+    
+        @param r0: direccion de memoria del string a limpiar 
+    */
+
+    limpiar_texto:
+        .fnstart
+            push {lr}
+            push {r1}
+            push {r2}
+            push {r3}
+
+            mov r2, #0          @Iteraciones
+
+            limpiar_texto_loop:
+                ldrb r3, [r0, r2]
+
+                cmp r3, #00                     @Comparamos si r3 == ""
+                beq return_limpiar_texto        @Si lo es, termina la cadena
+
+                mov r3, #0                      @Limpiamos el caracter obtenido r3 = ""
+                strb r3, [r0, r2]               @r0[r2] = r3 -> r0[r2] = ""
+                add r2, r2, #1                  @Iteramos...
+                b limpiar_texto_loop
+
+            return_limpiar_texto:
+                pop {r3}
+                pop {r2}
+                pop {r1}
+                pop {lr}
+
                 bx lr
         .fnend
 
@@ -575,8 +610,13 @@
                 beq   return_obtener_clave_con_ayuda 
 
             reiniciar_palabra_encriptada_actual:
-                mov r5, #0                                                      @Asigno nulo a r5
-                str r5, [r2]                                                    @palabra_encriptada_actual = ""
+                push {r0}
+                mov  r0, r2
+
+                bl limpiar_texto
+
+                pop {r0}
+
                 add r4, r4, #1                                                  @Sumamos a las iteraciones
                 mov r6, #0                                                      @Limpiamos el contado con el length de la palabra_encriptada_actual
                 b obtener_clave_con_ayuda_loop                                  @Volvemos a iterar
