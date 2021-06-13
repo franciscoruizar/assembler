@@ -1,10 +1,8 @@
 .data
-    mensaje_encriptado: .asciz "krd hvwh hv xq phqvdmh vxshu frpsolfdgR"
+    mensaje_encriptado: .asciz "qfqfqfqf hvwh qfqf"
     palabra_ayuda: .asciz "pepe"
     palabra_encriptada_actual: .skip 255
-    test: .asciz "jxyj"
 .text
-
     /*
         @param r0: direccion de memoria de palabra_ayuda
 
