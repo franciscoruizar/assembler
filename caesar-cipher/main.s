@@ -405,7 +405,6 @@
         @param r1: clave
 
         @return r0: cadena encriptada
-        @return r1: cadena encriptada
     
     */
     encriptar:
@@ -413,18 +412,23 @@
             push {lr}
             push {r2}
             push {r3}
+            push {r4}
             
             mov r2, r0                         @auxilio la direccion de memoria en r2 
+            mov r4, #0                         @caracteres procesados
             encriptar_loop:
                 ldrb r3, [r2]                  @obtengo el mas signficativo y lo guardo en r3
                 
                 cmp r3, #00                    
                 beq return_encriptar          @Si r3 == 0, termina la funcion
+
+                cmp r3, #' '                  @Comparamos  r3 con ' '
+                addne r4, r4, #1              @Si no es un ' ', sumamos 1 al contador de caracteres procesados
                 
                 push {r2}
 
                 mov r0, r3                     @Guardo en r0 el caracter 
-                bl encriptar_caracter           
+                bl encriptar_caracter
 
                 pop {r2}
                 strb r0, [r2], #1              @cambio en la posicion del bit mas significativo el caracter comun al encriptado 
@@ -433,7 +437,13 @@
 
             return_encriptar:
                 mov r0, r2
+                push {r1}
 
+                mov r1, r4
+                bl convertir_caracteres_procesados_a_ascii
+
+                pop {r1}
+                pop {r4}
                 pop {r3}
                 pop {r2}
                 pop {lr}
@@ -502,26 +512,31 @@
         @param r0: direccion de memoria del mensaje encriptado
         @param r1: clave
 
-        @return cadena desencriptada
-    
+        @return r0 cadena desencriptada
+
     */
     desencriptar:
         .fnstart
             push {lr}
             push {r2}
             push {r3}
+            push {r4}
 
             mov r2, r0                         @auxilio la direccion de memoria en r2 
+            mov r4, #0                         @caracteres procesados
             desencriptar_loop:
                 ldrb r3, [r2]                  @obtengo el mas signficativo y lo guardo en r3
                 
                 cmp r3, #00                     
-                beq end_desencriptar_loop         @Si r3 == 0, termina la funcion
+                beq end_desencriptar_loop      @Si r3 == 0, termina la funcion
+
+                cmp r3, #' '                  @Comparamos  r3 con ' '
+                addne r4, r4, #1              @Si no es un ' ', sumamos 1 al contador de caracteres procesados
                 
                 push {r2}
 
                 mov r0, r3                     @Guardo en r0 el caracter 
-                bl desencriptar_caracter           
+                bl desencriptar_caracter
 
                 pop {r2}
                 strb r0, [r2], #1              @cambio en la posicion del bit mas significativo el caracter encriptado al comun
@@ -531,6 +546,14 @@
             end_desencriptar_loop:
                 mov r0, r2
 
+                push {r1}
+
+                mov r1, r4
+                bl convertir_caracteres_procesados_a_ascii
+                
+                pop {r1}
+
+                pop {r4}
                 pop {r3}
                 pop {r2}
                 pop {lr}
@@ -959,6 +982,29 @@
             bx lr
         .fnend
 
+    /* 
+        r1: valor de caracteres procesados 
+    */
+    convertir_caracteres_procesados_a_ascii:
+        .fnstart
+            push {lr}
+            push {r0}
+            push {r2}
+            push {r3}
+
+            mov r0, r1
+            bl int_to_ascii
+
+            ldr r2, =caracteres_procesados
+            str r3, [r2]
+
+            pop {r3}
+            pop {r1}
+            pop {r0}
+            pop {lr}
+            bx lr
+        .fnend
+
     encriptacion:
         .fnstart
             push {lr}
@@ -966,7 +1012,7 @@
             ldr r0, =mensaje
             ldr r1, =clave_int
             ldr r1, [r1]
-
+            
             bl encriptar
 
             bl print_output      
