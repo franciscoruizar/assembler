@@ -1,6 +1,6 @@
 .data
 
-mensaje: .ascii "ho\000 " 
+mensaje: .ascii "hola\000        " 
 
 .text
 .global main
@@ -61,7 +61,7 @@ output:
 cantidad_de_1_en_byte:
         .fnstart
         mov r0,#0
-        mov r2,#0x00000080  //10000000 en binario
+        mov r2,#0x80        //10000000 en binario
         mov r3,#0           @aca guardo el numero de posicion que estoy evaluando
 
         ciclo:
