@@ -284,26 +284,99 @@
 
         .fnend
 
-        /*
-            input:
-                r0: numerador
-                r2: denominador
-            output:
-                r0: resto
-                r1: resultado
-        */
-        division:
-            .fnstart
+    /*
+        input:
+            r0: numerador
+            r2: denominador
+        output:
+            r0: resto
+            r1: resultado
+    */
+    division:
+        .fnstart
+            mov r1,#0               @limpio el registro r1 donde guardo el resultado
+            division_loop:
+                cmp  r0,r2	        @comparo divisor con dividendo
+                bxlt lr		        @si r0 < r1 entonces sale del ciclo
+                add r1,r1,#1	    @le sumo uno al contador de resultado por cada ciclo
+                sub r0,r0,r2	    @hago la resta r0-r1 y lo pongo en r0
+                b division_loop     @entra denuevo a la etiqueta cicla
+        .fnend
 
-                mov r1,#0               @limpio el registro r1 donde guardo el resultado
-                division_loop:
-                    cmp  r0,r2	        @comparo divisor con dividendo
-                    bxlt lr		        @si r0 < r1 entonces sale del ciclo
-                    add r1,r1,#1	    @le sumo uno al contador de resultado por cada ciclo
-                    sub r0,r0,r2	    @hago la resta r0-r1 y lo pongo en r0
-                    b division_loop     @entra denuevo a la etiqueta cicla
 
-            .fnend
+    /*
+        @param r0:  direccion de memoria del mensaje
+        @return r2: bit de paridad
+    */
+
+    calcular_bit_paridad_par:
+        .fnstart
+            push {lr}
+            push {r0}
+            push {r1}
+            push {r3}
+
+            mov r1, #0                          @Limpiamos registros - Contador de la cantidad de unos del mensaje
+            mov r2, #0                          @Limpiamos registros 
+            mov r3, #0                          @Limpiamos registros - Carga del byte mas significativo
+
+            loop_calcular_bit_paridad_par:
+                ldrb r3, [r0], #1                      @Cargamos el bit mas significativo de r0 en r3
+                
+                cmp r3, #0                             @Comparamos r3 con ''
+                beq return_calcular_bit_paridad_par    @si r3 == '', retornamos
+
+                bl contar_cantidad_de_unos
+
+                b loop_calcular_bit_paridad_par
+
+            return_calcular_bit_paridad_par:
+                and r2, r1, #1
+
+                pop {r3}
+                pop {r1}
+                pop {r0}
+                pop {lr}
+
+                bx lr						
+        .fnend
+
+
+    /*
+        @param r3: caracter
+        @return r1: cantidad de unos del byte
+    */
+    contar_cantidad_de_unos:
+        .fnstart
+            push {lr}
+            push {r0}
+            push {r2}
+
+            mov r0, #0                     @Limpiamos registros
+            mov r2, #0x80                  @Limpiamos registros - 0x80 es igual a 10000000 en binario
+
+            loop_contar_cantidad_de_unos:
+                and r0, r3, r2
+                
+                cmp r0, #0                           @Comparamos r0 con 0
+                addne r1, r1, #1
+
+                cmp r2, #1
+                beq return_contar_cantidad_de_unos   @Si r2 es 00000001 Significa que llegue al final.
+
+                ror r2, r2, #1		                 @corremos el bit 1 posicion
+
+                b loop_contar_cantidad_de_unos
+
+
+            return_contar_cantidad_de_unos:
+                pop {r2}
+                pop {r0}
+                pop {lr}
+
+                bx lr
+
+        .fnend
 
     /* 
         Parsea y extrar las partes del input del usaurio
@@ -672,7 +745,6 @@
                 cmp r5, #0x20                                                   @Comparamos r5 con ' '
                 beq verificar_length_palabra_actual_con_clave                   @Si es ' ', verificaciones si palabra_encriptada_actual.length == palabra_ayuda.length                                 
  
- @AGREGADO
                 cmp r5, #0                                                      @Comparamos r5 con null
                 beq verificar_length_palabra_actual_con_clave                   @Si es null, verificaciones si palabra_encriptada_actual.length == palabra_ayuda.length                                 
 
@@ -770,10 +842,8 @@
                 cmp r5, #00
                 beq return_true_obtener_cantidad_de_posiciones_loop             @Si llegamos al final de la cadena de las palabra, terminamos el loop y retornamos falso 
 
-@COMENTARIO AGREGADO
                 sub r7, r6, r5                                                  @cantidad_posiciones = caracter_palabra_encriptada - caracter_palabra_ayuda  { (B-X) = (66-88)=-22 (F-B) 4}      }
 
-@AGREGADO
                 cmp r7,#0
                 addlt r7,r7,#26                                                 @si es negativo sumo 26
 
@@ -1005,6 +1075,46 @@
             bx lr
         .fnend
 
+    /* 
+        Toma una direccion de memoria de un string y concatena un caracter al final y un nulo
+
+        r0: direccion de memoria de string 
+        r1: valor del caracter a concatenar en r1
+    */
+    concatenar_caracter:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #0       @Limpiamos registro
+            mov r3, #0       @Limpiamos registro
+
+            concatenar_caracter_loop:
+                ldrb r2, [r0, r3]
+
+                cmp r2, #0    @comparamos r2 con nulo
+    
+                beq concatenar_caracter_con_el_string
+
+                add r3, r3, #1
+                b concatenar_caracter_loop
+
+            concatenar_caracter_con_el_string:
+                strb r1, [r0, r3]
+                add r3, r3, #1
+                strb r2, [r0, r3]
+
+                b return_concatenar_caracter
+
+            return_concatenar_caracter:
+                pop {r3}
+                pop {r2}
+                pop {lr}
+                
+                bx lr
+        .fnend
+
     encriptacion:
         .fnstart
             push {lr}
@@ -1014,6 +1124,22 @@
             ldr r1, [r1]
             
             bl encriptar
+
+            push {r0}
+            push {r1}
+
+            ldr r0, =mensaje
+
+            bl calcular_bit_paridad_par
+
+            mov r0, r2                   
+            bl int_to_ascii
+
+            ldr r0, =mensaje
+            bl concatenar_caracter
+
+            pop {r1}
+            pop {r0}
 
             bl print_output      
 
