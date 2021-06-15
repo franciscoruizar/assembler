@@ -4,6 +4,8 @@
     clave: .ascii "                                                                                                                                                                                                                                                               "
     clave_int: .word 0
     opcion: .ascii "                                                                                                                                                                                                                                                               "
+    bit_paridad_string: .skip 255
+    bit_paridad_int: .int
     caracteres_procesados: .skip 255
     palabra_encriptada_actual: .skip 255
     mensaje_error: .asciz "No se pudo obtener la clave"
@@ -1147,6 +1149,60 @@
             bx lr
         .fnend
 
+    /*
+        @param r0 direccion de memoria de mensaje
+
+    */
+    separar_bit_de_paridad_con_mensaje:
+        .fnstart
+            push {lr}
+            push {r1}
+            push {r2}
+            push {r3}
+
+            push {r0}                          @Obtenemos el length del mensaje
+            bl length
+            mov r1, r0                         
+            pop {r0}
+
+            sub r1, r1, #1
+            ldrb r2, [r0, r1]                  @Obtenemos r2 = r0[r1]
+            
+            ldr r3, =bit_paridad_string        
+            str r2, [r3]                       @guardamos el valor del bit de paridad en memoria
+
+            push {r0}
+            push {r1}
+            
+            ldr r0, =bit_paridad_string
+            ldr r1, =bit_paridad_int
+
+            bl ascii_to_int
+
+            pop {r1}
+            pop {r0}
+
+            mov r2, #00
+            strb r2, [r0, r1]                  @r0[r1] = null
+
+            return_separar_bit_de_paridad_con_mensaje:
+                pop {r3}
+                pop {r2}
+                pop {r1}
+                pop {lr}
+
+                bx lr
+        .fnend
+
+
+        /*
+        
+                    R0: direccion de memoria donde esta el ascii
+            R1: direccion de memoria donde se guardara el entero
+        
+        
+         */
+
     desencriptacion:
         .fnstart
             push {lr}
@@ -1154,6 +1210,8 @@
             ldr r0, =mensaje
             ldr r1, =clave_int
             ldr r1, [r1]
+
+            bl separar_bit_de_paridad_con_mensaje
 
             bl desencriptar
             
