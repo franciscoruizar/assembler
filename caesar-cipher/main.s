@@ -9,6 +9,7 @@
     caracteres_procesados: .skip 255
     palabra_encriptada_actual: .skip 255
     mensaje_error: .asciz "No se pudo obtener la clave"
+    mensaje_error_bit_paridad: .asciz "Error en el bit de paridad :)"
     mensaje_usuario_clave: .asciz "La clave de desplazamiento es: "
     mensaje_usuario_caracteres_procesados: .asciz "La cantidad de caracteres procesados fueron: "
     mensaje_clave: .skip 255
@@ -911,6 +912,22 @@
             bx lr
         .fnend
 
+    print_mensaje_error_bit_paridad:
+        .fnstart
+            push {lr}
+            push {r2}
+            push {r3}
+
+            mov r2, #10
+            ldr r3, =mensaje_error_bit_paridad
+            bl print
+
+            pop {r3}
+            pop {r2}
+            pop {lr}
+            bx lr
+        .fnend
+
     print_mensaje_usuario_output:
         .fnstart
             push {lr}
@@ -1195,13 +1212,44 @@
         .fnend
 
 
-        /*
-        
-                    R0: direccion de memoria donde esta el ascii
-            R1: direccion de memoria donde se guardara el entero
-        
-        
-         */
+    /* 
+
+        @return r0 1=True/0=False
+    */
+
+    validar_bit_paridad_par_en_mensaje_encriptado:
+        .fnstart
+            push {lr}
+            push {r1}
+            push {r2}
+            push {r3}
+
+            ldr r0, =mensaje
+
+            bl calcular_bit_paridad_par
+
+            ldr r1, =bit_paridad_int
+            ldrb r1, [r1]
+
+            cmp r1, r2
+            moveq r0, #1
+            movne r0, #0
+
+            b return_validar_bit_paridad_par_en_mensaje_encriptado
+            
+            return_validar_bit_paridad_par_en_mensaje_encriptado:
+                pop {r3}
+                pop {r2}
+                pop {r1}
+                pop {lr}
+                bx lr
+        .fnend
+
+
+    /*
+        R0: direccion de memoria donde esta el ascii
+        R1: direccion de memoria donde se guardara el entero
+     */
 
     desencriptacion:
         .fnstart
@@ -1212,13 +1260,26 @@
             ldr r1, [r1]
 
             bl separar_bit_de_paridad_con_mensaje
+            
+            bl validar_bit_paridad_par_en_mensaje_encriptado
 
+            cmp r0, #0
+            beq error_desencriptacion_bit_paridad
+
+            ldr r0, =mensaje
             bl desencriptar
             
             bl print_output
 
+            b return_desencriptacion
+
+        error_desencriptacion_bit_paridad:
+            bl print_mensaje_error_bit_paridad
+            b return_desencriptacion
+        return_desencriptacion:
             pop {lr}
             bx lr
+
         .fnend
 
     desencriptacion_con_palabra_ayuda:
@@ -1226,14 +1287,20 @@
             push {lr}
 
             ldr r0, =mensaje
+            bl separar_bit_de_paridad_con_mensaje
+
+            bl validar_bit_paridad_par_en_mensaje_encriptado
+
+            cmp r0, #0
+            beq error_desencriptacion_con_palabra_ayuda_bit_paridad
+
+            ldr r0, =mensaje
             ldr r1, =clave
 
             bl obtener_clave_con_ayuda
 
             cmp r0, #0
-            bleq print_mensaje_error
-            popeq {lr}
-            bxeq lr
+            beq error_desencriptacion_con_palabra_ayuda
 
             mov r1, r0
             mov r2, r0
@@ -1246,8 +1313,21 @@
             
             bl print_output
 
+            b return_desencriptacion_con_palabra_ayuda
+            
+
+        error_desencriptacion_con_palabra_ayuda_bit_paridad:
+            bl print_mensaje_error_bit_paridad
+            b return_desencriptacion_con_palabra_ayuda
+
+        error_desencriptacion_con_palabra_ayuda:
+            bl print_mensaje_error
+            b return_desencriptacion_con_palabra_ayuda
+
+        return_desencriptacion_con_palabra_ayuda:
             pop {lr}
             bx lr
+
         .fnend
 
 .global main
